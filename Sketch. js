@@ -1,0 +1,196 @@
+var ratx = 45;
+var ratspeed = 0;
+var cheeseisout = 1;
+var trapy = 0;
+var trapspeed = 2;
+var is_rat_alive = 1;
+
+// Constant variables.
+var eatSound;
+var squeekSound;
+var evilSound;
+var backgroundSound
+var stonelocation = 200;
+var cheeselocation = 350;
+
+function preload() {
+  soundFormats("wav");
+  eatSound = loadSound("Eat.wav");
+  squeekSound = loadSound("Mouse.wav");
+  evilSound = loadSound("evil_laugh.wav");
+  soundFormats("mp3");
+  backgroundSound =loadSound("background.mp3");
+}
+
+function setup() {
+  createCanvas(600, 200);
+  stroke(0);
+}
+
+function draw_cheese() {
+  stroke(0);
+  if (cheeseisout == 1) {
+    fill(255, 204, 0);
+    triangle(cheeselocation, 200, cheeselocation + 28, 170, 356, 200);
+    fill(255, 180, 0);
+    triangle(cheeselocation + 40, 200, cheeselocation + 28, 170, 356, 200);
+
+    ellipse(cheeselocation + 30, 180, 2);
+    ellipse(cheeselocation + 27, 190, 2);
+    ellipse(cheeselocation + 35, 185, 2);
+  }
+}
+
+function draw_tube() {
+  //tube
+  fill(100, 150, 100);
+  rect(0, 100, 85, 100)
+  //hole cut surface
+  fill(60, 100, 60);
+  rect(30, 100, 100, 120, 20, 15, 10, 5);
+  //inner hole surface
+  fill(200, 200, 50);
+  rect(40, 120, 85, 100, 20, 15, 10, 5);
+}
+
+function draw_alive_rat(x) {
+  fill(250, 150, 100);
+  rect(x, 190, 20, 2);
+  arc(x, 200, 75, 75, PI + HALF_PI, TWO_PI);
+  ellipse(x + 9, 165, 20);
+  stroke(250, 150, 100);
+  strokeWeight(2);
+  line(x - 8, 199, 20 + x, 199)
+  stroke(0);
+  fill(255, 150, 130);
+  ellipse(x + 9, 165, 10);
+  fill(0);
+  ellipse(x + 20, 190, 10);
+}
+
+function draw_dead_rat(x) {
+  fill(255, 0, 0);
+  rect(x, 190, 20, 2);
+}
+
+function draw_rat(x) {
+  if (is_rat_alive == 1) {
+    draw_alive_rat(x);
+  } else {
+    draw_dead_rat(x);
+  }
+}
+
+function draw_trap(y) {
+  fill(250, 150, 255);
+  ellipse(stonelocation, y, 28);
+}
+
+function draw() {
+  background(250, 100, 146);
+  if (!backgroundSound.isPlaying()) {
+    backgroundSound.play();
+  }
+  // Code for rendering the scene.
+  // draw tube (background)
+  draw_tube();
+  //cheese
+  draw_cheese();
+  // draw rat at position ratx
+  draw_rat(ratx)
+  // draw trap
+  draw_trap(trapy);
+
+
+
+  // Code for controlling the objects.
+  if (ratx > 300) {
+    cheeseisout = 0;
+    ratspeed = -ratspeed * 3;
+    fill(225);
+
+
+  }
+  if (trapy > height) {
+    trapy = 0;
+  }
+  // if (ratx < 45) {
+  //   ratspeed = 0;
+  // }
+  check_key_inputs();
+  check_if_mouse_dies()
+
+  //Rat munch sound when catch the cheese
+
+  if (ratx < 310 && ratx > 290 && !eatSound.isPlaying()) {
+    if (cheeseisout == 1) {
+      eatSound.play();
+    }
+    // is_sound_playing = 0;  
+  }
+
+  //Rat squeek when being hit by the stone
+
+  if (trapy > height - 10 && ratx < stonelocation + 10 && ratx > stonelocation - 10 && !squeekSound.isPlaying()) {
+    squeekSound.play();
+    // is_sound_playing = 0;  
+    ratspeed = 0;
+  }
+  // Rat Win Sound
+  if (ratx < 210 && cheeseisout == 0 && is_rat_alive == 1 && !evilSound.isPlaying()) {
+    evilSound.play();
+  }
+  // is_sound_playing = 0;  
+
+
+// Update rat position.
+ratx = ratx + ratspeed * 2;
+trapy += trapspeed * 2;
+ratspeed = 0;
+}
+
+function check_if_mouse_dies() {
+  if (trapy > height - 10 && ratx < stonelocation + 10 && ratx > stonelocation - 10) {
+    is_rat_alive = 0;
+  }
+}
+
+//fill(200,200,50);
+//arc(40, 200, 75, 75, PI + HALF_PI, TWO_PI);
+
+function check_key_inputs() {
+  if (key == "c") {
+
+    // Release the cheese.
+    cheeseisout = 1;
+    key = 0;
+    return;
+  }
+  if (key == "r") {
+    reset_game();
+    key = 0;
+  }
+  if (keyIsDown(LEFT_ARROW)) {
+    if (is_rat_alive) {
+      ratspeed = -1;
+    }
+    return;
+  }
+  if (keyIsDown(RIGHT_ARROW)) {
+    if (is_rat_alive) {
+      ratspeed = 1;
+    }
+    return;
+  }
+  // Set ratspeed to 0.
+  ratspeed = 0;
+}
+
+function reset_game() {
+  ratx = 45;
+  ratspeed = 0;
+  cheeseisout = 1;
+  trapy = 0;
+  trapspeed = 2;
+  is_rat_alive = 1;
+}
